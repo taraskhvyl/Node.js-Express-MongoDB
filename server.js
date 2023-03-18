@@ -14,12 +14,22 @@ mongoose.connect(DB, {
   useUnifiedTopology: true
 }).then(() => console.log("DB connection successful"));
 
+process.on('uncaughtException', (error) => {
+  console.log(error.name, error.message);
+  process.exit(1)
+})
+
 const app = require("./app");
 
 const port = process.env.PORT || 3000;
 
-console.log(app.get('env'))
-
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`App running on port ${port}`);
 });
+
+process.on('unhandledRejection', (error) => {
+  console.log(error.name, error.message);
+  server.close(() => {
+    process.exit(1)
+  })
+})
